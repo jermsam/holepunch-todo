@@ -12,7 +12,7 @@ import Hyperswarm from 'hyperswarm';
 // @ts-ignore
 import goodbye from 'graceful-goodbye'
 import {isServer} from '@builder.io/qwik/build';
-import {createHash} from 'crypto';
+// import {createHash} from 'crypto';
 // @ts-ignore
 // import crypto from 'hypercore-crypto'
 // import {addTodo, doc} from '~/local-server/automerge';
@@ -68,12 +68,31 @@ export default component$(() => {
 //   swarmOpts: { dht }
 // })
     const swarm = new Hyperswarm({dht});
-    swarm.join(createTopic('todo-list'))
-    goodbye(() => swarm.destroy())
-    socket.onmessage = (event) => {
-      console.log(event.data);
-      todos.value = event.data;
-    };
+
+    const topic = createTopic('todo-list')
+    swarm.join(topic)
+    swarm.on('connection', (conn: any, peerInfo: any) => {
+      conn.on('data', (data: any) => {
+        // console.log(data);
+        console.log({data, peerInfo});
+        todos.value = data;
+      });
+  
+      conn.on('close', () => {
+        console.log('closed connection');
+      })
+      
+      conn.on('error', e => {
+        console.log(e);
+      })
+     
+    })
+
+    goodbye(async () => {
+      await swarm.leave(topic)
+      await swarm.destroy()
+    })
+   
   })
   
   const handleSubmit: SubmitHandler<TodoForm> = $((values, /*event*/) => {
