@@ -15,3 +15,5 @@ const dht = new DHT(new Stream(true, socket))
 
 const swarm = new Hyperswarm({dht});
 goodbye(() => swarm.destroy())
+
+export default socket;
