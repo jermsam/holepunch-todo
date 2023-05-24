@@ -1,8 +1,10 @@
-import {$, component$, useSignal} from '@builder.io/qwik';
+import {$, component$, useSignal,  useTask$} from '@builder.io/qwik';
 import { HiXCircleMini} from "@qwikest/icons/heroicons";
 import {routeLoader$, z} from '@builder.io/qwik-city';
 import {formAction$, InitialValues, reset, SubmitHandler, useForm, zodForm$} from '@modular-forms/qwik';
-import {addTodo, doc} from '~/local-server/automerge';
+import socket from '~/p2pclient/index.mjs';
+import {isServer} from '@builder.io/qwik/build';
+// import {addTodo, doc} from '~/local-server/automerge';
 
 const todoSchema = z.object({
   text: z
@@ -29,9 +31,24 @@ export default component$(() => {
     action: useFormAction(),
   });
   
+  const todos = useSignal<TodoForm[]>([])
+  
+  useTask$(()=>{
+    if(isServer) {
+      return;
+    }
+    socket.onmessage = (event) => {
+      console.log(event.data);
+      todos.value = event.data;
+    };
+  })
+  
   const handleSubmit: SubmitHandler<TodoForm> = $((values, /*event*/) => {
     // Runs on client
-    addTodo(values)
+    // addTodo(values)
+    socket.onopen = (/*event*/) => {
+      socket.send(JSON.stringify(values));
+    };
     reset(todoForm)
     itemDialog.value?.close()
   });
@@ -75,17 +92,15 @@ export default component$(() => {
         </div>
       </div>
     </dialog>
-      { Array.isArray(doc.items) &&
         <div>
           {
-            doc.items.map((item, index) => (
+            todos.value.map((item, index) => (
               <div key={index} class="w-96 bg-white shadow rounded">
                 {item.text}
               </div>
             ))
           }
         </div>
-      }
     </section>
   );
 });
