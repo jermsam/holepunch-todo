@@ -29,7 +29,7 @@ export default component$(() => {
     action: useFormAction(),
   });
   
-  const handleSubmit: SubmitHandler<TodoForm> = $((values, event) => {
+  const handleSubmit: SubmitHandler<TodoForm> = $((values, /*event*/) => {
     // Runs on client
     addTodo(values)
     reset(todoForm)
