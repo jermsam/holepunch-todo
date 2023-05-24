@@ -2,15 +2,16 @@
   "name": "p2pserver",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "p2pserver": "node index.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@hyperswarm/dht-relay": "^0.4.1",
-    "hyperdht": "^6.5.3"
+    "hyperdht": "^6.5.3",
+    "ws": "^8.13.0"
   }
 }

@@ -40,8 +40,13 @@
   },
   "dependencies": {
     "@automerge/automerge": "^2.0.3",
+    "@hyperswarm/dht-relay": "^0.4.1",
     "@modular-forms/qwik": "^0.16.0",
     "@qwikest/icons": "^0.0.8",
+    "b4a": "^1.6.4",
+    "graceful-goodbye": "^1.2.1",
+    "hyper-sdk": "^4.2.5",
+    "hyperswarm": "^4.4.1",
     "vite-plugin-wasm": "^3.2.2"
   }
 }
