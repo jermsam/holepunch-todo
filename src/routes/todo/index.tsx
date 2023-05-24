@@ -13,6 +13,8 @@ import Hyperswarm from 'hyperswarm';
 import goodbye from 'graceful-goodbye'
 import {isServer} from '@builder.io/qwik/build';
 import {createHash} from 'crypto';
+// @ts-ignore
+// import crypto from 'hypercore-crypto'
 // import {addTodo, doc} from '~/local-server/automerge';
 
 const todoSchema = z.object({
@@ -34,9 +36,14 @@ export const useFormAction = formAction$<TodoForm>((values) => {
 
 let socket: WebSocket;
 
-function createTopic (topic: string) {
+async function createTopic (topic: string) {
   const prefix = 'some-app-prefix-'
-  return createHash('sha256').update(prefix + topic).digest()
+  console.log(topic);
+  const encoder = new TextEncoder();
+  const data = encoder.encode(prefix + topic);
+
+  return await crypto.subtle.digest("SHA-256", data)
+  // return crypto.randomBytes(32)
 }
 export default component$(() => {
   const itemDialog = useSignal<HTMLDialogElement>()
@@ -72,6 +79,10 @@ export default component$(() => {
   const handleSubmit: SubmitHandler<TodoForm> = $((values, /*event*/) => {
     // Runs on client
     // addTodo(values)
+    if(isServer) {
+      return;
+    }
+    console.log(socket);
     if(socket) {
       socket.onopen = (/*event*/) => {
         socket.send(JSON.stringify(values));
