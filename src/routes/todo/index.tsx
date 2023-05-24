@@ -1,9 +1,18 @@
-import {$, component$, useSignal,  useTask$} from '@builder.io/qwik';
+import {$, component$, useSignal, /*useStore,*/ useTask$} from '@builder.io/qwik';
 import { HiXCircleMini} from "@qwikest/icons/heroicons";
 import {routeLoader$, z} from '@builder.io/qwik-city';
 import {formAction$, InitialValues, reset, SubmitHandler, useForm, zodForm$} from '@modular-forms/qwik';
-import socket from '~/p2pclient/index.mjs';
+// @ts-ignore
+import DHT from '@hyperswarm/dht-relay'
+// @ts-ignore
+import Stream from '@hyperswarm/dht-relay/ws'
+// import {SDK} from 'hyper-sdk';
+// @ts-ignore
+import Hyperswarm from 'hyperswarm';
+// @ts-ignore
+import goodbye from 'graceful-goodbye'
 import {isServer} from '@builder.io/qwik/build';
+import {createHash} from 'crypto';
 // import {addTodo, doc} from '~/local-server/automerge';
 
 const todoSchema = z.object({
@@ -23,6 +32,12 @@ export const useFormAction = formAction$<TodoForm>((values) => {
   console.log({values});
 }, zodForm$(todoSchema));
 
+let socket: WebSocket;
+
+function createTopic (topic: string) {
+  const prefix = 'some-app-prefix-'
+  return createHash('sha256').update(prefix + topic).digest()
+}
 export default component$(() => {
   const itemDialog = useSignal<HTMLDialogElement>()
   const [todoForm, { Form, Field/*, FieldArray*/ }] = useForm<TodoForm>({
@@ -37,6 +52,17 @@ export default component$(() => {
     if(isServer) {
       return;
     }
+     socket = new WebSocket('ws://localhost:8080')
+    const dht = new DHT(new Stream(true, socket))
+
+// or
+
+// const sdk = await SDK.create({
+//   swarmOpts: { dht }
+// })
+    const swarm = new Hyperswarm({dht});
+    swarm.join(createTopic('todo-list'))
+    goodbye(() => swarm.destroy())
     socket.onmessage = (event) => {
       console.log(event.data);
       todos.value = event.data;
@@ -46,9 +72,11 @@ export default component$(() => {
   const handleSubmit: SubmitHandler<TodoForm> = $((values, /*event*/) => {
     // Runs on client
     // addTodo(values)
-    socket.onopen = (/*event*/) => {
-      socket.send(JSON.stringify(values));
-    };
+    if(socket) {
+      socket.onopen = (/*event*/) => {
+        socket.send(JSON.stringify(values));
+      };
+    }
     reset(todoForm)
     itemDialog.value?.close()
   });
