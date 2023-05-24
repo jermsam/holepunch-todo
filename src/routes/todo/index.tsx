@@ -2,16 +2,13 @@ import {$, component$, useSignal, /*useStore,*/ useTask$} from '@builder.io/qwik
 import { HiXCircleMini} from "@qwikest/icons/heroicons";
 import {routeLoader$, z} from '@builder.io/qwik-city';
 import {formAction$, InitialValues, reset, SubmitHandler, useForm, zodForm$} from '@modular-forms/qwik';
-// @ts-ignore
-import DHT from '@hyperswarm/dht-relay'
-// @ts-ignore
-import Stream from '@hyperswarm/dht-relay/ws'
+
+
 // import {SDK} from 'hyper-sdk';
-// @ts-ignore
-import Hyperswarm from 'hyperswarm';
-// @ts-ignore
-import goodbye from 'graceful-goodbye'
+
+
 import {isServer} from '@builder.io/qwik/build';
+import swarm, {socket} from '~/p2pclient/index.mjs';
 // import {createHash} from 'crypto';
 // @ts-ignore
 // import crypto from 'hypercore-crypto'
@@ -34,17 +31,7 @@ export const useFormAction = formAction$<TodoForm>((values) => {
   console.log({values});
 }, zodForm$(todoSchema));
 
-let socket: WebSocket;
 
-async function createTopic (topic: string) {
-  const prefix = 'some-app-prefix-'
-  console.log(topic);
-  const encoder = new TextEncoder();
-  const data = encoder.encode(prefix + topic);
-
-  return await crypto.subtle.digest("SHA-256", data)
-  // return crypto.randomBytes(32)
-}
 export default component$(() => {
   const itemDialog = useSignal<HTMLDialogElement>()
   const [todoForm, { Form, Field/*, FieldArray*/ }] = useForm<TodoForm>({
@@ -59,18 +46,7 @@ export default component$(() => {
     if(isServer) {
       return;
     }
-     socket = new WebSocket('ws://localhost:8080')
-    const dht = new DHT(new Stream(true, socket))
-
-// or
-
-// const sdk = await SDK.create({
-//   swarmOpts: { dht }
-// })
-    const swarm = new Hyperswarm({dht});
-
-    const topic = createTopic('todo-list')
-    swarm.join(topic)
+    
     swarm.on('connection', (conn: any, peerInfo: any) => {
       conn.on('data', (data: any) => {
         // console.log(data);
@@ -82,31 +58,25 @@ export default component$(() => {
         console.log('closed connection');
       })
       
-      conn.on('error', e => {
+      conn.on('error', (e: any) => {
         console.log(e);
       })
      
     })
 
-    goodbye(async () => {
-      await swarm.leave(topic)
-      await swarm.destroy()
-    })
+    // goodbye(async () => {
+    //   await swarm.leave(topic)
+    //   await swarm.destroy()
+    // })
    
   })
   
   const handleSubmit: SubmitHandler<TodoForm> = $((values, /*event*/) => {
-    // Runs on client
-    // addTodo(values)
-    if(isServer) {
-      return;
-    }
-    console.log(socket);
-    if(socket) {
+  
       socket.onopen = (/*event*/) => {
         socket.send(JSON.stringify(values));
       };
-    }
+    
     reset(todoForm)
     itemDialog.value?.close()
   });

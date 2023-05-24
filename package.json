@@ -48,6 +48,7 @@
     "hyper-sdk": "^4.2.5",
     "hypercore-crypto": "^3.3.1",
     "hyperswarm": "^4.4.1",
+    "socket.io-client": "^4.6.1",
     "vite-plugin-wasm": "^3.2.2"
   }
 }
