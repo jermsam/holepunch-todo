@@ -220,11 +220,7 @@ export default component$(() => {
     })
   
   const handleSubmit: SubmitHandler<TodoForm> = $((values: TodoForm /*event*/) => {
-    console.log({values, connections: store.connections });
-    // connections.forEach(connObj => {
-    //   console.log(connObj);
-    //   return connObj.conn.send(JSON.stringify(values))
-    // })
+    store.connections?.forEach(conn => conn.send(JSON.stringify(values)))
     reset(todoForm);
     itemDialog.value?.close();
   });
