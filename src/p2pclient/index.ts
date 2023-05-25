@@ -1,9 +1,13 @@
 
 // import socketIO from "socket.io-client";
 // import WebSocket from 'ws';
+// @ts-ignore
 import DHT from '@hyperswarm/dht-relay';
+// @ts-ignore
 import Stream from '@hyperswarm/dht-relay/ws';
+// @ts-ignore
 import Hyperswarm from 'hyperswarm';
+// @ts-ignore
 import goodbye from 'graceful-goodbye';
 import * as BufferSource from 'buffer/'
 // async function createTopic (topic) {

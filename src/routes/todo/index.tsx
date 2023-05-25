@@ -165,7 +165,7 @@
 // });
 
 import {HiXCircleMini} from '@qwikest/icons/heroicons';
-import {$, component$, useSignal, useStore, useVisibleTask$} from '@builder.io/qwik';
+import {$, component$, noSerialize, NoSerialize, useSignal, useStore, useVisibleTask$} from '@builder.io/qwik';
 import {routeLoader$, z} from '@builder.io/qwik-city';
 import type {InitialValues, SubmitHandler} from '@modular-forms/qwik';
 import {Field, Form, formAction$, reset, useForm, zodForm$} from '@modular-forms/qwik';
@@ -192,10 +192,6 @@ export const useFormAction = formAction$<TodoForm>((values: TodoForm) => {
 
 }, zodForm$(todoSchema));
 
-type Connection = {
-  key:string,
-  conn: any
-}
 
 export default component$(() => {
   const itemDialog = useSignal<HTMLDialogElement>();
@@ -205,26 +201,30 @@ export default component$(() => {
     validate: zodForm$(todoSchema),
     action: useFormAction(),
   });
-  const connections = useStore<Connection[]>([])
+  
+  const store = useStore<{ connections: NoSerialize<Map<any, any>> }>({
+    connections: noSerialize(new Map())
+  });
+  
     useVisibleTask$(() => {
         swarm.on('connection', (conn: any, peerInfo: any) => {
         const key = peerInfo.publicKey
-          console.log({key});
-        connections.push({key, conn})
+        
+          store.connections?.set(key, conn)
         conn.on('data', (dataUpdate: TodoForm[]) => {
           todos.value = dataUpdate
         })
-        conn.on('close', () => connections.filter(con => con.key !== key))
-        conn.on('error', () => connections.filter(con => con.key !== key))
+        conn.on('close', () => store.connections?.delete(key))
+        conn.on('error', () => store.connections?.delete(key))
       });
     })
   
   const handleSubmit: SubmitHandler<TodoForm> = $((values: TodoForm /*event*/) => {
-    console.log({values, connections });
-    connections.forEach(connObj => {
-      console.log(connObj);
-      return connObj.conn.send(JSON.stringify(values))
-    })
+    console.log({values, connections: store.connections });
+    // connections.forEach(connObj => {
+    //   console.log(connObj);
+    //   return connObj.conn.send(JSON.stringify(values))
+    // })
     reset(todoForm);
     itemDialog.value?.close();
   });
