@@ -5,9 +5,6 @@ import {formAction$, InitialValues, reset, SubmitHandler, useForm, zodForm$} fro
 
 
 // import {SDK} from 'hyper-sdk';
-
-
-import {isServer} from '@builder.io/qwik/build';
 import {swarm, socket} from '~/p2pclient/index.mjs';
 // import {createHash} from 'crypto';
 // @ts-ignore
@@ -47,12 +44,9 @@ export default component$(() => {
   const todos = useSignal<TodoForm[]>([]);
   
   useTask$(() => {
-    if (isServer) {
-      return;
-    }
     
     swarm.on('connection', (conn: any, peerInfo: any) => {
-      conn.on('data', (data: any) => {
+      conn.on('message', (data: any) => {
         // console.log(data);
         console.log({data, peerInfo});
         todos.value = data;
@@ -73,9 +67,9 @@ export default component$(() => {
   
   const handleSubmit: SubmitHandler<TodoForm> = $((values /*event*/) => {
     
-    socket.onopen = (/*event*/) => {
+    // socket.onopen = (/*event*/) => {
       socket.send(JSON.stringify(values));
-    };
+    // };
     
     reset(todoForm);
     itemDialog.value?.close();

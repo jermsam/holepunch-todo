@@ -1,5 +1,6 @@
 
-import socketIO from "socket.io-client";
+// import socketIO from "socket.io-client";
+import {WebSocket} from 'ws';
 import DHT from '@hyperswarm/dht-relay';
 import Stream from '@hyperswarm/dht-relay/ws';
 import Hyperswarm from 'hyperswarm';
@@ -13,8 +14,13 @@ import goodbye from 'graceful-goodbye';
 //   return await crypto.subtle.digest("SHA-256", data)
 //   // return crypto.randomBytes(32)
 // }
+const port = 3000;
+// export const socket = socketIO.connect("ws://localhost:3000");
+export const socket = new WebSocket(`ws://localhost:${port}`);
 
-export const socket = socketIO.connect("http://localhost:3000");
+// socket.on('open', () => {
+//   socket.send('Hi this is client A')
+// })
 
 const dht = new DHT(new Stream(true, socket))
 
