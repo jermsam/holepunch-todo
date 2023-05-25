@@ -209,9 +209,10 @@ export default component$(() => {
     useVisibleTask$(() => {
         swarm.on('connection', (conn: any, peerInfo: any) => {
         const key = peerInfo.publicKey
-        
+        console.log('peers connected', peerInfo)
           store.connections?.set(key, conn)
         conn.on('data', (dataUpdate: TodoForm[]) => {
+          console.log('updated data: ', dataUpdate);
           todos.value = dataUpdate
         })
         conn.on('close', () => store.connections?.delete(key))
