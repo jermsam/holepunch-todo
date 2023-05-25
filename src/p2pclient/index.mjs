@@ -14,7 +14,7 @@ import goodbye from 'graceful-goodbye';
 //   // return crypto.randomBytes(32)
 // }
 
-export const socket = socketIO.connect("http://localhost:8080");
+export const socket = socketIO.connect("http://localhost:3000");
 
 const dht = new DHT(new Stream(true, socket))
 
@@ -23,8 +23,7 @@ export const swarm = new Hyperswarm({dht});
 
   
   const topicBuffer = Buffer.from('we-rock-todo', 'hex')
-  
-  console.log('line 26: ',topicBuffer);
+ 
   swarm.join(topicBuffer)
   
   goodbye(async () => {

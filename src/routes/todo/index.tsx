@@ -89,7 +89,7 @@ export default component$(() => {
       >
         Add Item
       </button>
-     
+      
       <dialog ref={itemDialog} class={'rounded-2xl'}>
         <div class={'bg-white p-10 min-w-[300px] relative'}>
           <HiXCircleMini onClick$={() => itemDialog.value?.close()} class={'absolute right-1 top-1 cursor-pointer'}/>
