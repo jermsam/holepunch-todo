@@ -31,6 +31,23 @@ export const swarm = new Hyperswarm({dht});
   const topicBuffer = Buffer.from('we-rock-todo', 'hex')
  
   swarm.join(topicBuffer)
+
+swarm.on('connection', (conn, peerInfo) => {
+  conn.on('data', (data) => {
+    // console.log(data);
+    console.log({data, peerInfo});
+    // todos.value = data;
+  });
+  
+  conn.on('close', () => {
+    console.log('closed connection');
+  });
+  
+  conn.on('error', (e) => {
+    console.log(e);
+  });
+  
+});
   
   goodbye(async () => {
    

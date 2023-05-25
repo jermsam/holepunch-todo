@@ -62,7 +62,6 @@ export default component$(() => {
       
     });
     
-    
   });
   
   const handleSubmit: SubmitHandler<TodoForm> = $((values /*event*/) => {
