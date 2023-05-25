@@ -81,6 +81,15 @@ export default component$(() => {
     itemDialog.value?.close();
   });
   
+  // const clickOutside = $((ev: any) => {
+  //   const dimensions = ev.target.getBoundingClientRect();
+  //  const isClickedOutside =  ev.clientX < dimensions.left || ev.clientX > dimensions.right ||
+  //                                     ev.clientY < dimensions.top || ev.clientY > dimensions.bottom
+  //   if(isClickedOutside){
+  //     itemDialog.value?.close();
+  //   }
+  // })
+  
   return (
     <section class="p-10">
       <button
@@ -90,7 +99,8 @@ export default component$(() => {
         Add Item
       </button>
       
-      <dialog ref={itemDialog} class={'rounded-2xl'}>
+      {/*<dialog ref={itemDialog} class={'rounded-2xl backdrop:bg-gray-50'} onclick$={clickOutside}>*/}
+      <dialog ref={itemDialog} class={'rounded-2xl backdrop:bg-gray-50'}>
         <div class={'bg-white p-10 min-w-[300px] relative'}>
           <HiXCircleMini onClick$={() => itemDialog.value?.close()} class={'absolute right-1 top-1 cursor-pointer'}/>
           <div class={'flex flex-col gap-2'}>
@@ -105,7 +115,6 @@ export default component$(() => {
                     {...props}
                     value={field.value}
                     class="focus:ring-2 focus:ring-gray-950 focus:outline-none appearance-none w-full text-sm leading-6 text-slate-900 placeholder-slate-400 rounded-md py-2 pl-10 ring-1 ring-slate-200 shadow-sm"
-                  
                   />
                     {field.error && <div class={'text-red-800'}>{field.error}</div>}
                   </div>
