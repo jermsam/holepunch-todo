@@ -6,7 +6,7 @@
 //
 //
 // // import {SDK} from 'hyper-sdk';
-// // import {swarm, socket} from '~/p2pclient/index.mjs';
+// // import {swarm, socket} from '~/p2pclient/index.ts';
 // // import {isBrowser} from '@builder.io/qwik/build';
 // // import {WebSocketClient} from 'vite';
 // // import {createHash} from 'crypto';
@@ -169,7 +169,7 @@ import {$, component$, useSignal, useStore, useVisibleTask$} from '@builder.io/q
 import {routeLoader$, z} from '@builder.io/qwik-city';
 import type {InitialValues, SubmitHandler} from '@modular-forms/qwik';
 import {Field, Form, formAction$, reset, useForm, zodForm$} from '@modular-forms/qwik';
-import {swarm} from '~/p2pclient/index.mjs';
+import {swarm} from '~/p2pclient';
 
 const todoSchema = z.object({
   text: z
@@ -209,6 +209,7 @@ export default component$(() => {
     useVisibleTask$(() => {
         swarm.on('connection', (conn: any, peerInfo: any) => {
         const key = peerInfo.publicKey
+          console.log({key});
         connections.push({key, conn})
         conn.on('data', (dataUpdate: TodoForm[]) => {
           todos.value = dataUpdate
