@@ -43,10 +43,10 @@ export default component$(() => {
   
   const todos = useSignal<TodoForm[]>([]);
   
-  useTask$(() => {
-    
+  useTask$(({track}) => {
+    track(() => todos.value)
     swarm.on('connection', (conn: any, peerInfo: any) => {
-      conn.on('message', (data: any) => {
+      conn.on('data', (data: any) => {
         // console.log(data);
         console.log({data, peerInfo});
         todos.value = data;
