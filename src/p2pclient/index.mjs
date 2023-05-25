@@ -1,11 +1,11 @@
 
 // import socketIO from "socket.io-client";
-import {WebSocket} from 'ws';
+// import WebSocket from 'ws';
 import DHT from '@hyperswarm/dht-relay';
 import Stream from '@hyperswarm/dht-relay/ws';
 import Hyperswarm from 'hyperswarm';
 import goodbye from 'graceful-goodbye';
-
+import * as BufferSource from 'buffer/'
 // async function createTopic (topic) {
 //   const prefix = 'some-app-prefix-'
 //   const encoder = new TextEncoder();
@@ -14,7 +14,7 @@ import goodbye from 'graceful-goodbye';
 //   return await crypto.subtle.digest("SHA-256", data)
 //   // return crypto.randomBytes(32)
 // }
-const port = 3000;
+const port = 3400;
 // export const socket = socketIO.connect("ws://localhost:3000");
 export const socket = new WebSocket(`ws://localhost:${port}`);
 
@@ -28,7 +28,7 @@ export const swarm = new Hyperswarm({dht});
 
 
   
-  const topicBuffer = Buffer.from('we-rock-todo', 'hex')
+  const topicBuffer = BufferSource.Buffer.from('we-rock-todo', 'hex')
  
   swarm.join(topicBuffer)
 
