@@ -192,6 +192,11 @@ export const useFormAction = formAction$<TodoForm>((values: TodoForm) => {
 
 }, zodForm$(todoSchema));
 
+type Connection = {
+  key:string,
+  conn: any
+}
+
 export default component$(() => {
   const itemDialog = useSignal<HTMLDialogElement>();
   const todos = useSignal<TodoForm[]>([]);
@@ -200,24 +205,24 @@ export default component$(() => {
     validate: zodForm$(todoSchema),
     action: useFormAction(),
   });
-  const connections = useStore([])
+  const connections = useStore<Connection[]>([])
     useVisibleTask$(() => {
         swarm.on('connection', (conn: any, peerInfo: any) => {
         const key = peerInfo.publicKey
-        connections.set(key, conn)
+        connections.push({key, conn})
         conn.on('data', (dataUpdate: TodoForm[]) => {
           todos.value = dataUpdate
         })
-        conn.on('close', () => connections.delete(key))
-        conn.on('error', () => connections.delete(key))
+        conn.on('close', () => connections.filter(con => con.key !== key))
+        conn.on('error', () => connections.filter(con => con.key !== key))
       });
     })
   
   const handleSubmit: SubmitHandler<TodoForm> = $((values: TodoForm /*event*/) => {
     console.log({values, connections });
-    connections.forEach(conn => {
-      console.log(conn);
-      return conn.send(JSON.stringify(values))
+    connections.forEach(connObj => {
+      console.log(connObj);
+      return connObj.conn.send(JSON.stringify(values))
     })
     reset(todoForm);
     itemDialog.value?.close();
