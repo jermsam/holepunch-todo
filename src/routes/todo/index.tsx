@@ -6,6 +6,8 @@ import {formAction$, InitialValues, reset, SubmitHandler, useForm, zodForm$} fro
 
 // import {SDK} from 'hyper-sdk';
 import {swarm, socket} from '~/p2pclient/index.mjs';
+import {isBrowser} from '@builder.io/qwik/build';
+import {WebSocketClient} from 'vite';
 // import {createHash} from 'crypto';
 // @ts-ignore
 // import crypto from 'hypercore-crypto'
@@ -15,12 +17,15 @@ const todoSchema = z.object({
   text: z
     .string()
     .min(1, 'Please enter item text.'),
+  done: z
+    .boolean()
 });
 
 type TodoForm = z.infer<typeof todoSchema>;
 
 export const useFormLoader = routeLoader$<InitialValues<TodoForm>>(() => ({
   text: '',
+  done: false
 }));
 
 export const useFormAction = formAction$<TodoForm>((values) => {
@@ -59,23 +64,31 @@ export default component$(() => {
   const todos = useSignal<TodoForm[]>([]);
   
   useTask$(({track}) => {
-    track(() => todos.value)
-    swarm.on('connection', (conn: any, peerInfo: any) => {
-      conn.on('data', (data: any) => {
-        // console.log(data);
-        console.log({data, peerInfo});
-        todos.value = data;
+    // track(() => todos.value)
+    // swarm.on('connection', (conn: any, peerInfo: any) => {
+    //   conn.on('data', (data: any) => {
+    //     // console.log(data);
+    //     console.log({data, peerInfo});
+    //     todos.value = data;
+    //   });
+    //
+    //   conn.on('close', () => {
+    //     console.log('closed connection');
+    //   });
+    //
+    //   conn.on('error', (e: any) => {
+    //     console.log(e);
+    //   });
+    //
+    // });
+    
+    if(isBrowser) {
+      swarm.on('connection', (socket: any) => {
+        socket.on('data', (dataUpdate: TodoForm[]) => {
+          todos.value = dataUpdate
+        })
       });
-      
-      conn.on('close', () => {
-        console.log('closed connection');
-      });
-      
-      conn.on('error', (e: any) => {
-        console.log(e);
-      });
-      
-    });
+    }
     
   });
   
