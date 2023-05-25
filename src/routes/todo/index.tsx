@@ -26,6 +26,21 @@ export const useFormLoader = routeLoader$<InitialValues<TodoForm>>(() => ({
 export const useFormAction = formAction$<TodoForm>((values) => {
   // Runs on server
   console.log({values});
+  swarm.on('connection', (conn: any, peerInfo: any) => {
+    conn.on('data', (data: any) => {
+      // console.log(data);
+      console.log({data, peerInfo});
+    });
+    
+    conn.on('close', () => {
+      console.log('closed connection');
+    });
+    
+    conn.on('error', (e: any) => {
+      console.log(e);
+    });
+    
+  });
 }, zodForm$(todoSchema));
 
 
