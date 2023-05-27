@@ -37,7 +37,6 @@ export const swarm = new Hyperswarm({dht});
   swarm.join(topicBuffer)
 
 
-  
   goodbye(async () => {
    
       await swarm.leave(topicBuffer)

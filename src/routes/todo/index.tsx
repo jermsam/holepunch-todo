@@ -207,7 +207,9 @@ export default component$(() => {
   });
   
     useVisibleTask$(() => {
-        swarm.on('connection', (conn: any, peerInfo: any) => {
+      
+      swarm.on('connection', (conn: any, peerInfo: any) => {
+        conn.write('this is a server connection')
         const key = peerInfo.publicKey
         console.log('peers connected', peerInfo)
           store.connections?.set(key, conn)
@@ -218,6 +220,16 @@ export default component$(() => {
         conn.on('close', () => store.connections?.delete(key))
         conn.on('error', () => store.connections?.delete(key))
       });
+      
+      swarm.on('update', () => {
+        // store.connections?.forEach(conn => {
+        //   conn.on('data', (dataUpdate: TodoForm[]) => {
+        //     console.log('updated data: ', dataUpdate);
+        //     todos.value = dataUpdate
+        //   })
+        // })
+        console.log('peer updated...')
+      })
     })
   
   const handleSubmit: SubmitHandler<TodoForm> = $((values: TodoForm /*event*/) => {
@@ -244,12 +256,12 @@ export default component$(() => {
             <Form
               onSubmit$={$((values: TodoForm, event) => handleSubmit(values, event))}
             >
-              <Field name="text">
+              <Field name="text" >
                 {(field, props) => (
                   <div>
                   <textarea
                     {...props}
-                    value={field.value}
+                    value={field.value || ''}
                     class="focus:ring-2 focus:ring-gray-950 focus:outline-none appearance-none w-full text-sm leading-6 text-slate-900 placeholder-slate-400 rounded-md py-2 pl-10 ring-1 ring-slate-200 shadow-sm"
                   />
                     {field.error && <div class={'text-red-800'}>{field.error}</div>}
